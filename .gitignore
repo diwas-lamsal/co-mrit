@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+main/data/*
+main/work_dir/*
+main/pretrained/*
+
+!*/.gitkeep
+!*/*/.gitkeep
+!*/*/*/.gitkeep
+!*/*/*/*/.gitkeep
