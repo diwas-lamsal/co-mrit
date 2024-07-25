@@ -34,6 +34,7 @@ y_test, cat_mask_test, num_mask_test, num_categories, num_continuous, categorica
 image_feature_dim = 2048
 tabular_feature_dim = 2048
 projection_dim = 2048
+num_classes = 5
 
 # Whether to run parallel classification
 parallel_classify = True
@@ -82,17 +83,23 @@ test_dataset = CombinedDataset(
 train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=16, shuffle=False)
 
+print(sum(num_categories))
+
 tabular_encoder = FTTransformer(
     categories=num_categories,
     num_continuous=len(continuous_columns),
     dim=32,
-    dim_out=tabular_feature_dim, 
+    dim_out=num_classes, 
     depth=6,
     heads=8,
     attn_dropout = 0.1,                 # post-attention dropout
     ff_dropout = 0.1                    # feed forward dropout
 ).to(device)
 
+load_tabular_weights = True
+if load_tabular_weights:
+    tabular_encoder.load_state_dict(torch.load("pretrained/epoch_2_NACC_ft_transformer.pth"),strict=False)
+    tabular_encoder.dim_out = tabular_feature_dim
 
 image_encoder = ViT(
     image_size = (image_height,image_width),          # image size
@@ -111,6 +118,10 @@ image_encoder = ViT(
     emb_dropout = 0.0
 ).to(device)
 
+load_imaging_weights = True
+if load_imaging_weights:
+    image_encoder.load_state_dict(torch.load("pretrained/best_model_490_patchsz16.pth"),strict=False)
+
 
 contrastive_model = CoMRIT(
     image_encoder=image_encoder,
@@ -119,7 +130,7 @@ contrastive_model = CoMRIT(
     tabular_feature_dim = tabular_feature_dim, 
     projection_dim = projection_dim, 
     parallel_classify=parallel_classify,
-    num_classes=5,
+    num_classes=num_classes,
 ).to(device)
 
 

@@ -7,6 +7,10 @@ main/data/*
 main/work_dir/*
 main/pretrained/*
 
+main/*.pth
+main/*/*.pth
+main/*/*/*.pth
+
 !*/.gitkeep
 !*/*/.gitkeep
 !*/*/*/.gitkeep

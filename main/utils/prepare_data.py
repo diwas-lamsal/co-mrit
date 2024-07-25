@@ -72,14 +72,6 @@ def prepare_tabular_dataset(
     df_X = pd.read_csv(x_csv)
     df_Y = pd.read_csv(y_csv)
     
-    if drop_missing_images:
-        # Check for missing values in the 'path' column of df_X
-        missing_path_indices = df_X[df_X['path'].isnull()].index
-
-        # Drop rows with missing 'path' values from both df_X and df_Y
-        df_X = df_X.drop(missing_path_indices)
-        df_Y = df_Y.drop(missing_path_indices)
-
     # Define categorical and continuous columns
     categorical_columns = [col for col, info in column_metadata.items() if info['type'] in ['C', 'O']]
     continuous_columns = [col for col, info in column_metadata.items() if info['type'] == 'N']
@@ -97,6 +89,16 @@ def prepare_tabular_dataset(
     num_mask = (df_X[continuous_columns].isnull()).astype(int)
     for col in continuous_columns:
         df_X[col] = df_X[col].fillna(df_X[col].mean())  # Fill NaNs with the mean for continuous data
+        
+    if drop_missing_images:
+        # Check for missing values in the 'path' column of df_X
+        missing_path_indices = df_X[df_X['path'].isnull()].index
+
+        # Drop rows with missing 'path' values from both df_X and df_Y
+        df_X = df_X.drop(missing_path_indices)
+        df_Y = df_Y.drop(missing_path_indices)
+        cat_mask = cat_mask.drop(missing_path_indices)
+        num_mask = num_mask.drop(missing_path_indices)
 
     # Encode labels
     y_encoder = LabelEncoder()
@@ -166,10 +168,6 @@ def prepare_combined_dataset(
     # Check for missing values in the 'path' column of df_X
     missing_path_indices = df_X[df_X['path'].isnull()].index
 
-    # Drop rows with missing 'path' values from both df_X and df_Y
-    df_X = df_X.drop(missing_path_indices)
-    df_Y = df_Y.drop(missing_path_indices)
-
     # Define categorical and continuous columns
     categorical_columns = [col for col, info in column_metadata.items() if info['type'] in ['C', 'O']]
     continuous_columns = [col for col, info in column_metadata.items() if info['type'] == 'N']
@@ -187,6 +185,12 @@ def prepare_combined_dataset(
     num_mask = (df_X[continuous_columns].isnull()).astype(int)
     for col in continuous_columns:
         df_X[col] = df_X[col].fillna(df_X[col].mean())  # Fill NaNs with the mean for continuous data
+        
+    # Drop rows with missing 'path' values from both df_X and df_Y
+    df_X = df_X.drop(missing_path_indices)
+    df_Y = df_Y.drop(missing_path_indices)
+    cat_mask = cat_mask.drop(missing_path_indices)
+    num_mask = num_mask.drop(missing_path_indices)
 
     # Encode labels
     y_encoder = LabelEncoder()
